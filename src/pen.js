@@ -76,7 +76,7 @@ canvas.height = window.innerHeight * 2;
         // context.lineWidth   = lineWidth// pressure * 50;
         // context.lineTo(x, y);
         // context.moveTo(x, y);
-        if (points.length >= 0) {
+        if (points.length >= 3) {
             var l = points.length - 1
             var xc = (points[l].x + points[l - 1].x) / 2
             var yc = (points[l].y + points[l - 1].y) / 2
