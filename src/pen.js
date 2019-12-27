@@ -1,6 +1,7 @@
 
 var $force = document.querySelectorAll('#force')[0]
 var $touches = document.querySelectorAll('#touches')[0]
+let debug = document.getElementById("debug");
 var canvas = document.querySelectorAll('canvas')[0]
 var context = canvas.getContext('2d')
 var lineWidth = 0
@@ -12,7 +13,6 @@ let pressure = 0.1;
 function resize() {
     canvas.width = window.innerWidth * 2;
     canvas.height = window.innerHeight * 2;
-    points = [{ x: "1050", y:"638", lineWidth: "0" }, { x: "1052", y:"638", lineWidth: "11.090354888959126" }, { x: "1054", y:"638", lineWidth: "17.744567822334602" }];
 }
 window.onresize = resize;
 
@@ -29,12 +29,12 @@ function setCurrCoords(e) {
         x = e.touches[0].pageX * 2;
         y = e.touches[0].pageY * 2;
         console.log(e.touches[0].touchType);
+        debug.innerHTML = "Touch Type: " + e.touches[0].touchType;
     } else {
         pressure = 1.0;
         x = e.pageX * 2;
         y = e.pageY * 2;
     }
-    //
 
 }
 
