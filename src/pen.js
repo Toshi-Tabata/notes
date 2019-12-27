@@ -9,7 +9,14 @@ var lineWidth = 0
 var isMousedown = false
 var points = [];
 let x, y;
-let pressure = 1;
+
+// Arbitrary pressure for mouse
+let pressure = 0.15;
+
+function changeThickness() {
+    pressure = pressure === 0.15 ? 10 : 0.15;
+    console.log("changed pressure to " + pressure);
+}
 
 function resize() {
     canvas.width = window.innerWidth * 2;
@@ -32,7 +39,6 @@ function setCurrCoords(e) {
         console.log(e.touches[0].touchType);
         debug.innerHTML = "Touch Type: " + e.touches[0].touchType;
     } else {
-        pressure = 0.015;
         x = e.pageX * 2;
         y = e.pageY * 2;
     }
@@ -64,7 +70,7 @@ function setCurrCoords(e) {
 
 
         setCurrCoords(e);
-        lineWidth = Math.log(pressure) + 10;
+        lineWidth = Math.abs(Math.log(pressure + 1)) + 2;
         //lineWidth = (Math.log(pressure + 1) * 40 * 0.4 + lineWidth * 0.6);
         points.push({
             x, y, lineWidth
@@ -77,8 +83,8 @@ function setCurrCoords(e) {
             var xc = (points[l].x + points[l - 1].x) / 2
             var yc = (points[l].y + points[l - 1].y) / 2
             context.lineWidth = points[l - 1].lineWidth
-            context.lineTo(xc, yc);
-            //context.quadraticCurveTo(points[l - 1].x, points[l - 1].y, xc, yc)
+            //context.lineTo(xc, yc);
+            context.quadraticCurveTo(points[l - 1].x, points[l - 1].y, xc, yc);
             context.stroke()
             context.beginPath()
             context.moveTo(xc, yc)
