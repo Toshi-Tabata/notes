@@ -2,13 +2,14 @@
 var $force = document.querySelectorAll('#force')[0]
 var $touches = document.querySelectorAll('#touches')[0]
 let debug = document.getElementById("debug");
+let penWidth = document.getElementById("penWidth");
 var canvas = document.querySelectorAll('canvas')[0]
 var context = canvas.getContext('2d')
 var lineWidth = 0
 var isMousedown = false
 var points = [];
 let x, y;
-let pressure = 0.1;
+let pressure = 1;
 
 function resize() {
     canvas.width = window.innerWidth * 2;
@@ -31,7 +32,7 @@ function setCurrCoords(e) {
         console.log(e.touches[0].touchType);
         debug.innerHTML = "Touch Type: " + e.touches[0].touchType;
     } else {
-        pressure = 1.0;
+        pressure = 0.015;
         x = e.pageX * 2;
         y = e.pageY * 2;
     }
@@ -63,15 +64,14 @@ function setCurrCoords(e) {
 
 
         setCurrCoords(e);
-
-        lineWidth = (Math.log(pressure + 1) * 40 * 0.4 + lineWidth * 0.6);
+        lineWidth = Math.log(pressure) + 10;
+        //lineWidth = (Math.log(pressure + 1) * 40 * 0.4 + lineWidth * 0.6);
         points.push({
             x, y, lineWidth
         });
         setContextStroke();
-        // context.lineWidth   = lineWidth// pressure * 50;
-        // context.lineTo(x, y);
-        // context.moveTo(x, y);
+
+
         if (points.length >= 3) {
             var l = points.length - 1
             var xc = (points[l].x + points[l - 1].x) / 2
@@ -83,7 +83,8 @@ function setCurrCoords(e) {
             context.beginPath()
             context.moveTo(xc, yc)
         }
-        $force.innerHTML = 'force = ' + pressure
+        penWidth.innerHTML = "Pen Width: " + lineWidth;
+        $force.innerHTML = 'force = ' + pressure;
         $touches.innerHTML = 'touchev = ' + (e.touches ? JSON.stringify(e.touches[0]) : '')
         e.preventDefault()
     })
