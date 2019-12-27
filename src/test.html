@@ -1,0 +1,118 @@
+<h1 id="c-syntax">C Syntax</h1>
+<h2 id="switch-statements">Switch Statements</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="cf">switch</span> (colour) {</span>
+<span id="cb1-2"><a href="#cb1-2"></a>    <span class="cf">case</span> <span class="ch">&#39;r&#39;</span>:</span>
+<span id="cb1-3"><a href="#cb1-3"></a>        printf(<span class="st">&quot;red&quot;</span>);</span>
+<span id="cb1-4"><a href="#cb1-4"></a>        <span class="cf">break</span>;</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="cf">case</span> <span class="ch">&#39;b&#39;</span>:</span>
+<span id="cb1-6"><a href="#cb1-6"></a>        printf(<span class="st">&quot;blue&quot;</span>);</span>
+<span id="cb1-7"><a href="#cb1-7"></a>        <span class="cf">break</span>;</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="cf">default</span>:</span>
+<span id="cb1-9"><a href="#cb1-9"></a>        printf(<span class="st">&quot;Invalid&quot;</span>);</span>
+<span id="cb1-10"><a href="#cb1-10"></a>}</span></code></pre></div>
+<ul>
+<li>Omitting the <code>break</code> statement will let it continue down the cases</li>
+</ul>
+<h2 id="ternaries">Ternaries</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">// x will tell us if y was greater than 0 or not</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="dt">char</span> x[] = (y &gt; <span class="dv">0</span>) ? <span class="st">&quot;yes&quot;</span> : <span class="st">&quot;no&quot;</span>;</span></code></pre></div>
+<ul>
+<li>Can’t assign LHS and RHS to different things
+<ul>
+<li>they both will assign to the one variable given</li>
+</ul></li>
+</ul>
+<h2 id="assignment-in-expressions">Assignment in Expressions</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1"></a><span class="dt">int</span> i = (x &gt; <span class="dv">0</span>); <span class="co">// this is an expression</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="cf">if</span> ((i = getchar()) != EOF); <span class="co">// This is an assignment in an expression</span></span></code></pre></div>
+<h2 id="reading-from-a-file-using-fgets">Reading from a File using <code>fgets</code></h2>
+<ul>
+<li>Create a while loop using
+<ul>
+<li><code>while(fgets() != NULL)</code></li>
+<li>Every newline in the file will be a separate loop</li>
+</ul></li>
+<li><code>printf</code> will push to the output file</li>
+<li>To input/output to a file use
+<ul>
+<li><code>./fileName &lt; a.in &gt; a.out</code></li>
+<li><code>&lt;</code> pushes into the file</li>
+<li><code>&gt;</code> pulls out of the file</li>
+</ul></li>
+</ul>
+<h2 id="realloc"><code>realloc</code></h2>
+<ul>
+<li>Allows you to change the size of <code>malloc</code>’d memory</li>
+<li><code>realloc(ptr, size)</code>
+<ul>
+<li>where <code>ptr</code> is the pointer to the <code>malloc</code>’d memory</li>
+</ul></li>
+<li>Returns a pointer to the newly allocated memory or NULL if it did not have enough memory</li>
+<li>Size is what you want the new size of the memory to be
+<ul>
+<li>e.g. previously was 5 * <code>sizeof(int)</code>, and you want to increase it, just give the new size
+<ul>
+<li>e.g. 6 * <code>sizeof(int)</code> gives original 5 + 1 extra <code>int</code></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="function-pointers">Function Pointers</h2>
+<ul>
+<li>Make reference to memory address of a function
+<ul>
+<li>i.e. a <code>Pointer</code> to a <code>Function</code></li>
+</ul></li>
+<li><strong><u>Used for passing in functions into another function</u></strong> (and returning a function)</li>
+<li>Also used for performing OOP in C??</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="dt">void</span> fn(<span class="dt">int</span> num) {</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    printf(<span class="st">&quot;%d&quot;</span>, num);</span>
+<span id="cb4-3"><a href="#cb4-3"></a>}</span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="dt">int</span> main(<span class="dt">void</span>) {</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="co">// declaring and initialising the function pointer</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="dt">void</span> (*fn_ptr)(<span class="dt">int</span>) = &amp;fn;</span>
+<span id="cb4-8"><a href="#cb4-8"></a>    </span>
+<span id="cb4-9"><a href="#cb4-9"></a>    <span class="co">// using the pointer to print &quot;69&quot;</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>    (*fn_ptr)(<span class="dv">69</span>);</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    </span>
+<span id="cb4-12"><a href="#cb4-12"></a>    <span class="co">// </span><span class="al">NOTE</span><span class="co">: You can remove the &amp; and *</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="dt">void</span> (fn_ptr)(<span class="dt">int</span>) = fn; <span class="co">// &amp; removed</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>    (fn_ptr)(<span class="dv">69</span>); <span class="co">// * removed</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>}</span></code></pre></div>
+<ul>
+<li>Without the bracket in <code>(*fn_ptr)(69)</code> it would become
+<ul>
+<li><code>void *fn_ptr(int)</code>
+<ul>
+<li>This is a <code>Function</code> with type <code>void *</code> that accepts an <code>int</code>
+<ul>
+<li>i.e. declaring a function that returns a void pointer</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>This shit wack</li>
+</ul>
+<h3 id="passing-functions-into-another-function">Passing Functions into another Function</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a><span class="dt">void</span> printNum(<span class="dt">int</span> n)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    printf(<span class="st">&quot;%d&quot;</span>, n);</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co">// Fn with 2 args:</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co">// 1. A void fn that accepts an integer</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="co">// 2. an int array</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="dt">void</span> forEach(<span class="dt">void</span> (*fn)(<span class="dt">int</span>), <span class="dt">int</span> array[]) {</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    </span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="co">// Calls 1. on each element in the array</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; ARRAY_LENGTH; i++) {</span>
+<span id="cb5-11"><a href="#cb5-11"></a>        fn(array[i]);</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    }</span>
+<span id="cb5-13"><a href="#cb5-13"></a>}</span>
+<span id="cb5-14"><a href="#cb5-14"></a></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="dt">int</span> main(<span class="dt">void</span>) {</span>
+<span id="cb5-16"><a href="#cb5-16"></a>    <span class="dt">int</span> array[<span class="dv">2</span>] = {<span class="dv">1</span>, <span class="dv">2</span>};</span>
+<span id="cb5-17"><a href="#cb5-17"></a>    <span class="co">// Declaring and initialising a function pointer</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a>    <span class="dt">void</span> (*printNum)(<span class="dt">int</span>) = printNum;</span>
+<span id="cb5-19"><a href="#cb5-19"></a>    forEach(printNum, array);</span>
+<span id="cb5-20"><a href="#cb5-20"></a>}</span></code></pre></div>
+<h3 id="returning-a-function">Returning a function</h3>
+<p>```c // Return type is “int (<em>fn)(int, int)" // i.e. a function pointer, with a return type of int and 2 args of type int // The arg type is "int n" int (</em>functionFactory(int n))(int, int) { printf(”Got parameter %d", n); int</p>
