@@ -19,13 +19,19 @@ function changeThickness() {
 }
 
 function resize() {
-    canvas.width = window.innerWidth * 2;
-    canvas.height = window.innerHeight * 2;
+    // canvas.style.width = "500px";
+    // canvas.style.height = "500px";
+    canvas.width = window.innerWidth / 2;
+    canvas.height = window.innerHeight / 2;
+    console.log(window.innerHeight);
 }
-window.onresize = resize;
+// window.onresize = resize;
 
-canvas.width = window.innerWidth * 2;
-canvas.height = window.innerHeight * 2;
+// canvas.width = window.innerWidth / 2;
+// canvas.height = window.innerHeight / 2;
+canvas.width = 500;
+canvas.height = 500;
+
 
 // sets the current coordinates and pressure of the mouse/touch input
 function setCurrCoords(e) {
@@ -39,8 +45,8 @@ function setCurrCoords(e) {
         console.log(e.touches[0].touchType);
         debug.innerHTML = "Touch Type: " + e.touches[0].touchType;
     } else {
-        x = e.pageX * 2;
-        y = e.pageY * 2;
+        x = e.pageX;
+        y = e.pageY;
     }
 
 }
