@@ -1,14 +1,14 @@
 Debug: <div id="debug"></div>
 
-<input type="color"  class="js-color-picker  color-picker">
-<input type="range" class="js-line-range" min="1" max="72" value="1">
-<label class="js-range-value">1</label>
+<input type="color"  id="colourPicker">
+<input type="range" id="thicknessPicker" min="1" max="72" value="1">
+<label id="thicknessValue"> 1 </label>
 
 <div id="canvasContainer">
-<canvas class="js-paint  paint-canvas" width="600" height="300"></canvas>
+<canvas id="canvas" width="600" height="300"></canvas>
 </div>
 <button onclick="undo()">undo</button>
-
+<button onclick="redo()">redo</button>
 
 
 

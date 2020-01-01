@@ -1,28 +1,29 @@
-// TODO: change the consts to use getelementbyID and change color to colour
+// Simple Drawing Application made by Toshi Tabata
+// toshi.tabata@outlook.com
 
 // Globals
-const paintCanvas = document.querySelector( '.js-paint' );
-const context = paintCanvas.getContext( '2d' );
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
 const debug = document.getElementById("debug");
-const colorPicker = document.querySelector( '.js-color-picker');
-const lineWidthRange = document.querySelector( '.js-line-range' );
-const lineWidthLabel = document.querySelector( '.js-range-value' );
+const colourPicker = document.getElementById("colourPicker");
+const lineWidthRange = document.getElementById("thicknessPicker");
+const lineWidthLabel = document.getElementById("thicknessValue");
 let x = 0, y = 0;
 let mouseIsDown = false;
 let canvasStack = [];
 let redoStack = [];
 let width = 1;
-let colour = colorPicker.value;
+let colour = colourPicker.value;
 context.lineCap = "round";
 context.lineJoin = "round";
 
 // Event Listeners
-colorPicker.addEventListener( 'change', changeColour);
-lineWidthRange.addEventListener( 'input', setPenThickness);
-paintCanvas.addEventListener( "mousedown", startDrawing );
-paintCanvas.addEventListener( "mousemove", draw );
-window.addEventListener( "mouseup", stopDrawing );
-paintCanvas.addEventListener("mouseover", resumeDrawing);
+colourPicker.addEventListener("change", changeColour);
+lineWidthRange.addEventListener("input", setPenThickness);
+canvas.addEventListener("mousedown", startDrawing);
+canvas.addEventListener("mousemove", draw);
+window.addEventListener("mouseup", stopDrawing);
+canvas.addEventListener("mouseover", resumeDrawing);
 
 // Functions
 function changeColour(event) {
@@ -49,7 +50,7 @@ function startDrawing(event) {
     // Objects contain a path (array of coordinates to draw the line)
     canvasStack.push(
         [{x, y, width, colour}]
-    )
+    );
 
 }
 
@@ -63,7 +64,6 @@ function draw(event) {
         y = newY;
         debugging(`Coords: ${x}, ${y}`);
         canvasStack[canvasStack.length - 1].push({x: newX, y: newY, width, colour});
-        console.log(canvasStack[canvasStack.length - 1]);
     }
 }
 
@@ -85,10 +85,16 @@ function debugging (message) {
 
 }
 
-
 function undo() {
-    // pop the top of points stack, then redraw using points[] array
-    context.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+
+    // Do nothing if there is nothing to undo
+    if (canvasStack[0] === undefined) {
+        return;
+    }
+
+    // pop the top of the `points` stack, then redraw using points[] array
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
     redoStack.push(canvasStack.pop());
 
     // For each line in the stack, redraw the line
@@ -110,12 +116,20 @@ function undo() {
 }
 
 function redo() {
-    // Redraw the most recent item in the redo stack, and pop it.
-    //drawLine(stack)
+    // Do nothing if nothing has been undone
+    if (redoStack[0] === undefined) {
+        return;
+    }
 
+    const lastItem = redoStack.length - 1;
+    let line = redoStack[lastItem]; // array of coordinates for forming line(s)
+    canvasStack.push(redoStack.pop());
+
+    for (let i = 0; i < line.length - 1; i++) {
+        const [x, y, prevX, prevY, width, colour] = [line[i + 1].x, line[i + 1].y, line[i].x, line[i].y, line[i].width, line[i].colour];
+        drawLine(x, y, prevX, prevY, width, colour)
+    }
 }
-
-
 
 function drawLine(x, y, prevX, prevY, width, colour) {
     context.lineWidth = width;
@@ -123,7 +137,6 @@ function drawLine(x, y, prevX, prevY, width, colour) {
     context.beginPath();
     context.moveTo(x, y);
     context.quadraticCurveTo(x, y, prevX, prevY);
-    // context.lineTo(s[j + 1].newX, s[j + 1].newY);
     context.stroke();
 
 }
