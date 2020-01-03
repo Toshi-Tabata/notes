@@ -1,20 +1,28 @@
+<html style="touch-action: none; -webkit-user-select: none">
 Debug: <div id="debug"></div>
 
 <input type="color"  id="colourPicker">
-<input type="range" id="thicknessPicker" min="1" max="72" value="1">
-<label id="thicknessValue"> 1 </label>
+<input type="range" id="thicknessPicker" min="1" max="72" value="2">
+<label id="thicknessValue"> 2 </label>
 
 <div id="canvasContainer">
-<canvas id="canvas" width="600" height="300"></canvas>
+<canvas id="canvas" style="border: 2px solid red"></canvas>
 </div>
-<button onclick="undo()">undo</button>
-<button onclick="redo()">redo</button>
 
+<button onclick="undo()" style="-webkit-user-select: none">undo</button>
+<button onclick="redo()" style="-webkit-user-select: none">redo</button>
 
+<button onclick="changeResolution(`decrease`)"> - </button>
+Canvas Size
+<button onclick="changeResolution(`increase`)"> + </button>
+<button onclick="toggleFinger()">Toggle Finger Drawing</button>
+<script>
 
+</script>
 
 
 
 
 <script src="./drawing.js"> </script>
 
+</html>

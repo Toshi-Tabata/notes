@@ -9,21 +9,35 @@ const colourPicker = document.getElementById("colourPicker");
 const lineWidthRange = document.getElementById("thicknessPicker");
 const lineWidthLabel = document.getElementById("thicknessValue");
 let x = 0, y = 0;
+let fingerDrawOff = false;
 let mouseIsDown = false;
 let canvasStack = [];
 let redoStack = [];
-let width = 1;
+let width = 2;
 let colour = colourPicker.value;
 context.lineCap = "round";
 context.lineJoin = "round";
+context.lineWidth = width;
+setResolution(500, 500);
 
-// Event Listeners
+function toggleFinger() {
+    fingerDrawOff = fingerDrawOff ? false : true;
+}
+
+
 colourPicker.addEventListener("change", changeColour);
 lineWidthRange.addEventListener("input", setPenThickness);
+
+// Mouse Event Listeners
 canvas.addEventListener("mousedown", startDrawing);
+canvas.addEventListener("mouseover", resumeDrawing);
 canvas.addEventListener("mousemove", draw);
 window.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("mouseover", resumeDrawing);
+
+// Touch Event Listeners
+canvas.addEventListener("touchstart", startDrawing);
+canvas.addEventListener("touchmove", draw);
+window.addEventListener("touchend", stopDrawing);
 
 // Functions
 function changeColour(event) {
@@ -39,37 +53,97 @@ function setPenThickness(event) {
 
 }
 
+function getCoords(event) {
+    if (fingerDrawOff) {
+        if (event.touches[0].touchType === "direct")
+            return;
+    }
+
+
+    if (event.touches && event.touches[0] && typeof event.touches[0]["force"] !== "undefined") {
+        if (event.touches[0]["force"] > 0) {
+            // TODO: implement forces == brush thickness
+        }
+        x = event.touches[0].pageX - canvas.offsetLeft;
+        y = event.touches[0].pageY - canvas.offsetTop;
+
+    } else {
+        x = event.offsetX;
+        y = event.offsetY;
+    }
+}
+
+function removeEmptyLine() {
+    if (canvasStack === undefined) {
+        return;
+    }
+
+    const prevLine = canvasStack[canvasStack.length - 1];
+    if (prevLine !== undefined && prevLine.length < 3) {
+        console.log(canvasStack);
+        console.log(prevLine);
+        canvasStack.pop();
+        console.log(canvasStack);
+
+    }
+}
+
 function startDrawing(event) {
+    event.preventDefault();
+
+    // Remove empty lines as we are drawing. Catches case where first line drawn is empty
+    removeEmptyLine();
     redoStack = [];
     mouseIsDown = true;
-    x = event.offsetX;
-    y = event.offsetY;
-    debugging("drawing start");
+    getCoords(event);
+    context.beginPath();
+    context.moveTo(x, y);
 
     // Create an array with objects for every new line drawn
     // Objects contain a path (array of coordinates to draw the line)
     canvasStack.push(
         [{x, y, width, colour}]
     );
+    console.log("just pushed ");
+    console.log([{x, y, width, colour}]);
+    debugging("drawing start");
 
 }
 
 function draw(event) {
     if (mouseIsDown) {
-        const newX = event.offsetX;
-        const newY = event.offsetY;
 
-        drawLine(newX, newY, x, y, width, colour);
-        x = newX;
-        y = newY;
+        getCoords(event);
+        canvasStack[canvasStack.length - 1].push({x: x, y: y, width, colour});
+
+        // Only start drawing the line when at least 3 points for the line is obtained
+        const line = canvasStack[canvasStack.length - 1];
+        const numPoints = line.length;
+
+        if (numPoints >= 3) {
+            const curr = line[line.length - 1];
+            const prev = line[line.length - 2];
+
+            drawLine(prev, curr, prev.width, prev.colour);
+        }
+
         debugging(`Coords: ${x}, ${y}`);
-        canvasStack[canvasStack.length - 1].push({x: newX, y: newY, width, colour});
     }
 }
 
 function stopDrawing() {
     mouseIsDown = false;
     debugging("drawing stopped");
+
+    // if (canvasStack === undefined) {
+    //     return;
+    // }
+    //
+    // const prevLine = canvasStack[canvasStack.length - 1];
+    // if (prevLine !== undefined && prevLine.length < 3) {
+    //     console.log("drawing dot");
+    //     context.fillRect(x, y, 2, 2);
+    // }
 
 }
 
@@ -85,6 +159,19 @@ function debugging (message) {
 
 }
 
+function redraw(line) {
+
+    for (let i = 1; i < line.length - 1; i++) {
+        const prev = line[i];
+        const curr = line[i + 1];
+
+        // TODO: confirm whether to use prev.width or curr.width
+        drawLine(prev, curr, prev.width, prev.colour);
+
+
+    }
+}
+
 function undo() {
 
     // Do nothing if there is nothing to undo
@@ -92,23 +179,23 @@ function undo() {
         return;
     }
 
+    // Remove empty lines as the undo button is pressed. Catches case where last line is empty
+    removeEmptyLine();
+
     // pop the top of the `points` stack, then redraw using points[] array
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    redoStack.push(canvasStack.pop());
+    // redraw entire canvas except the line being undone
+    for (let i = 0; i < canvasStack.length - 1; i++) {
+        let line = canvasStack[i];
+        context.beginPath();
+        context.moveTo(line[0].x, line[0].y);
 
-    // For each line in the stack, redraw the line
-    for (let i = 0; i < canvasStack.length; i++) {
-        let s = canvasStack[i];
-
-        // Redraw the line
-        for (let j = 0; j < s.length - 1; j++) {
-            const curr = s[j];
-            const next = s[j + 1];
-            drawLine(next.x, next.y, curr.x, curr.y, curr.width, curr.colour);
-
-        }
+        redraw(line);
     }
+
+    // Push undone line to redoStack`
+    redoStack.push(canvasStack.pop());
 
     // Reset context to default
     context.lineWidth = width;
@@ -121,22 +208,63 @@ function redo() {
         return;
     }
 
-    const lastItem = redoStack.length - 1;
-    let line = redoStack[lastItem]; // array of coordinates for forming line(s)
+    let line = redoStack[redoStack.length - 1];
+    context.beginPath();
+    context.moveTo(line[0].x, line[0].y);
+    redraw(line);
     canvasStack.push(redoStack.pop());
+}
 
-    for (let i = 0; i < line.length - 1; i++) {
-        const [x, y, prevX, prevY, width, colour] = [line[i + 1].x, line[i + 1].y, line[i].x, line[i].y, line[i].width, line[i].colour];
-        drawLine(x, y, prevX, prevY, width, colour)
+// Assumes that beginPath and moveTo have been called prior to drawLine
+// draw a bezier curve between the mid point of the most recent two points
+// control point is the second most recent point (2nd item on stack)
+function drawLine(prev, curr, width, colour) {
+    context.lineWidth = width;
+    context.strokeStyle = colour;
+
+    const avgX = (prev.x + curr.x) / 2;
+    const avgY = (prev.y + curr.y) / 2;
+    context.quadraticCurveTo(prev.x, prev.y, avgX, avgY);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(avgX, avgY);
+
+
+}
+
+function changeResolution(variation) {
+    const scale = window.devicePixelRatio;
+    let width = canvas.width / scale;
+    let height = canvas.height / scale;
+
+    if (variation === "increase") {
+        debugging("increased canvas size to " + (width + 250));
+        setResolution(width + 250, height + 250);
+
+    } else {
+        debugging("decreased canvas size to " + (width - 250));
+        setResolution(width - 250, height - 250);
     }
 }
 
-function drawLine(x, y, prevX, prevY, width, colour) {
-    context.lineWidth = width;
-    context.strokeStyle = colour;
-    context.beginPath();
-    context.moveTo(x, y);
-    context.quadraticCurveTo(x, y, prevX, prevY);
-    context.stroke();
+function setResolution(width, height) {
+    if (width < 0 || height < 0) {
+        debugging("Could not set canvas size that small :(");
+        return;
+    }
+    const scale = window.devicePixelRatio;
+    console.log("scale was : " + scale);
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    canvas.getContext("2d").scale(scale, scale);
 
+    // Redraw all the elements on the page upon resize
+    // reusing undo() since it redraws anyway but need padding to prevent last drawn line from
+    // being removed. These get removed by removeEmptyLine() when undo/redo() is called since
+    // they only contain 1 object.
+    canvasStack.push([{x: 1, y: 2, width: 1, colour: "blue"}]);
+    canvasStack.push([{x: 1, y: 2, width: 1, colour: "blue"}]);
+    undo();
 }

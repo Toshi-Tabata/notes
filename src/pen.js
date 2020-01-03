@@ -105,12 +105,12 @@ function setCurrCoords(e) {
     canvas.addEventListener(ev, function (e) {
         setCurrCoords(e);
         isMousedown = false;
-        setContextStroke();
-        if (points.length >= 3) {
-            var l = points.length - 1
-            context.quadraticCurveTo(points[l].x, points[l].y, x, y)
-            context.stroke()
-        }
+        // setContextStroke();
+        // if (points.length >= 3) {
+        //     var l = points.length - 1
+        //     context.quadraticCurveTo(points[l].x, points[l].y, x, y)
+        //     context.stroke()
+        // }
         let obj = points.map(function(item) {
             return `{ x: "${item.x}", y:"${item.y}", lineWidth: "${item.lineWidth}" }`
 
